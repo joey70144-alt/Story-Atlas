@@ -1,0 +1,11 @@
+import {cp,mkdir,readdir,rm,writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import {join} from 'node:path';
+const root=fileURLToPath(new URL('.',import.meta.url));
+const allowed=new Set(['index.html','app.js','ai.js']);
+if((await readdir(join(root,'dist'))).some(n=>!allowed.has(n)))throw Error('dist 含非網站檔案，請檢查後再發布。');
+await rm(join(root,'docs'),{recursive:true,force:true});
+await mkdir(join(root,'docs'),{recursive:true});
+for(const n of allowed)await cp(join(root,'dist',n),join(root,'docs',n));
+await writeFile(join(root,'docs','.nojekyll'),'');
+console.log('Pages ready: docs/');
